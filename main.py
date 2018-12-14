@@ -31,7 +31,7 @@ def root():
 
 
 @app.route("/backend/test/signal")
-def development_backend():
+def test_backend():
     stat, m = update_compose('test')
     if stat:
         return 'success', 200
@@ -39,7 +39,7 @@ def development_backend():
 
 
 @app.route("/backend/acceptance/signal")
-def development_backend():
+def acceptance_backend():
     stat, m = update_compose('acc-be')
     if stat:
         return 'success', 200
@@ -47,7 +47,7 @@ def development_backend():
 
 
 @app.route("/frontend/test/signal")
-def development_frontend():
+def test_frontend():
     stat, m = update_compose('test')
     if stat:
         return 'success', 200
@@ -55,7 +55,7 @@ def development_frontend():
 
 
 @app.route("/frontend/acceptance/signal")
-def development_frontend():
+def acceptance_frontend():
     stat, m = update_compose('acc-fe')
     if stat:
         return 'success', 200
