@@ -8,6 +8,7 @@ Create a ssh config file in /etc/ssh/ssh_config and add the following entries:
 1. Test server hosting both frontend and backend: `test`
 2. Acceptance server hosting frontend: `acc-fe`
 3. Acceptance server hosting backend: `acc-be`
+Make sure the key used to connect to the servers is readable by the uWSGI uid (in this case: www-data)
 
 ```bash
 Host <hostname should match entries above>
@@ -22,7 +23,7 @@ Clone this repository in `/usr/share/whf`, or modify the uwsgi.ini to reflect yo
 apt install python-virtualenv python3-pip uwsgi-plugin-python3 supervisor nginx
 ```
 
-####Virtual environment
+###Virtual environment
 ```bash
 cd /
 mkdir venv
@@ -31,7 +32,7 @@ virtualenv -p /usr/bin/python3 whf
 source whf/bin/activate
 pip3 install -r /usr/share/whf/requirements.txt
 ```
-####NGINX
+###NGINX
 /etc/nginx/sites-available/app.conf
 ```bash
 server {
@@ -45,7 +46,7 @@ server {
 ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/default
 ```
 
-####uWSGI
+###uWSGI
 /etc/uwsgi/uwsgi.ini
 ```ini
 [uwsgi]
@@ -69,7 +70,7 @@ module = main
 callable = app
 ```
 
-####Supervisord
+###Supervisord
 /etc/supervisor/conf.d/app.conf
 ```ini
 [program:whf]
