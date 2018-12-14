@@ -1,9 +1,9 @@
-#Web Hook Forwarder
+# Web Hook Forwarder
 The idea is to run local commands on internal servers using SSH if you have external webhooks triggering it.
 The implementation currently runs the docker compose chain for updating existing images.
 This stupid simple setup assumes a test server hosting frontend and backed, acceptance frontend and backend.
 
-##Configure
+## Configure
 Create a ssh config file in /etc/ssh/ssh_config and add the following entries: 
 1. Test server hosting both frontend and backend: `test`
 2. Acceptance server hosting frontend: `acc-fe`
@@ -17,13 +17,13 @@ Host <hostname should match entries above>
     IdentityFile <path to the private key file for the specified user>
 ```
 
-##Install
+## Install
 Clone this repository in `/usr/share/whf`, or modify the uwsgi.ini to reflect your location.
 ```bash
 apt install python-virtualenv python3-pip uwsgi-plugin-python3 supervisor nginx
 ```
 
-###Virtual environment
+### Virtual environment
 ```bash
 cd /
 mkdir venv
@@ -32,7 +32,7 @@ virtualenv -p /usr/bin/python3 whf
 source whf/bin/activate
 pip3 install -r /usr/share/whf/requirements.txt
 ```
-###NGINX
+### NGINX
 /etc/nginx/sites-available/app.conf
 ```bash
 server {
@@ -46,7 +46,7 @@ server {
 ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/default
 ```
 
-###uWSGI
+### uWSGI
 /etc/uwsgi/uwsgi.ini
 ```ini
 [uwsgi]
@@ -70,7 +70,7 @@ module = main
 callable = app
 ```
 
-###Supervisord
+### supervisord
 /etc/supervisor/conf.d/app.conf
 ```ini
 [program:whf]
