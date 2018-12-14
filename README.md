@@ -81,3 +81,5 @@ stdout_logfile_backups = 5
 stderr_logfile = /var/log/supervisor/whf-error.log
 stderr_logfile_backups = 5
 ```
+
+Restart supervisor and nginx, and you're good to go.

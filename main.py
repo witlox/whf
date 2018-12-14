@@ -1,3 +1,5 @@
+import argparse
+
 from fabric import Connection
 from flask import Flask
 
@@ -6,19 +8,17 @@ app = Flask(__name__)
 
 def execute_command(server, command):
     try:
-        result = Connection(server).run(server, command, hide=True)
+        result = Connection(server).run(command, hide=True)
         if result.ok:
             return True, None
         else:
             return False, "o: {0}, e: {1}".format(result.stdout.strip(), result.stderr.strip())
     except Exception as e:
-        return False, e
+        return False, str(e)
 
 
 def update_compose(server):
-    for command in ['docker-compose down',
-                    'docker-compose pull',
-                    'docker-compose up']:
+    for command in ['docker-compose down', 'docker-compose pull', 'docker-compose up']:
         r, m = execute_command(server, command)
         if not r:
             return False, m
@@ -63,4 +63,9 @@ def acceptance_frontend():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    parser = argparse.ArgumentParser(description='Start our server in development mode.')
+    parser.add_argument('-p', '--port', dest='port', default=5000, type=int, help='Port number for server')
+    parser.add_argument('-d', '--debug', action='store_true', help='Enable debug mode')
+    args = parser.parse_args()
+
+    app.run(host='0.0.0.0', port=args.port, debug=args.debug)
