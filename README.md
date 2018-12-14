@@ -17,11 +17,23 @@ Host <hostname should match entries above>
 ```
 
 ##Install
-####NGINX
+Clone this repository in `/usr/share/whf`, or modify the uwsgi.ini to reflect your location.
 ```bash
-sudo apt install nginx
+apt install python-virtualenv python3-pip uwsgi supervisor nginx
 ```
-/etc/nginx/nginx.conf
+
+####Virtual environment
+```bash
+apt install 
+cd /
+mkdir venv
+cd venv
+virtualenv -p /usr/bin/python3 whf
+source whf/bin/activate
+pip3 install -r /usr/share/whf/requirements.txt
+```
+####NGINX
+/etc/nginx/sites-available/app.conf
 ```bash
 server {
     location / {
@@ -30,42 +42,40 @@ server {
     }
 }
 ```
+```bash
+ln -sf /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/default
+```
 
 ####uWSGI
-```bash
-sudo pip install uwsgi
-```
-/etc/uwsgi/wsgi.ini
+/etc/uwsgi/uwsgi.ini
 ```ini
 [uwsgi]
 socket = /tmp/uwsgi.sock
+
+master = true
+processes = 2
+
 chown-socket = nginx:nginx
 chmod-socket = 664
+
 hook-master-start = unix_signal:15 gracefully_kill_them_all
+
+chdir = /usr/share/whf
+module = main
+callable = app
 ```
 
 ####Supervisord
-```bash
-sudo apt install supervisord
-```
-/etc/supervisor/conf.d/supervisord.conf
+/etc/supervisor/conf.d/app.conf
 ```ini
-[supervisord]
-nodaemon=true
-
-[program:uwsgi]
-command=/usr/local/bin/uwsgi --ini /etc/uwsgi/uwsgi.ini --die-on-term --need-app
-stdout_logfile=/dev/stdout
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/stderr
-stderr_logfile_maxbytes=0
-
-[program:nginx]
-command=/usr/sbin/nginx
-stdout_logfile=/dev/stdout
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/stderr
-stderr_logfile_maxbytes=0
-# Graceful stop, see http://nginx.org/en/docs/control.html
+[program:whf]
+user=ubuntu
+virtualenv=/venv/whf
+command=uwsgi --ini /etc/uwsgi/uwsgi.ini
+priority=1
 stopsignal=QUIT
+stdout_logfile = /var/log/supervisor/whf-app.log
+stdout_logfile_backups = 5
+stderr_logfile = /var/log/supervisor/whf-app-error.log
+stderr_logfile_backups = 5
 ```
