@@ -18,7 +18,7 @@ def execute_command(server, command):
 
 
 def update_compose(server):
-    for command in ['docker-compose down', 'docker-compose pull', 'docker-compose up']:
+    for command in ['docker-compose down', 'docker-compose pull', 'docker-compose up -d']:
         r, m = execute_command(server, command)
         if not r:
             return False, m
