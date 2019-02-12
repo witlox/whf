@@ -7,13 +7,17 @@ app = Flask(__name__)
 
 
 def execute_command(server, command):
+    app.logger.info("going to execute command {0} on {1}".format(command, server))
     try:
         result = Connection(server).run(command, hide=True)
         if result.ok:
+            app.logger.debug("executed {0} succesfully".format(command))
             return True, None
         else:
+            app.logger.error("error executing {0}: {1}".format(command, result))
             return False, "o: {0}, e: {1}".format(result.stdout.strip(), result.stderr.strip())
     except Exception as e:
+        app.logger.exeption("failure for {0} on {1}".format(command, server))
         return False, str(e)
 
 
