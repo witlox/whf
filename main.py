@@ -74,11 +74,11 @@ def not_found_error(error):
 def hooks(variable):
     uri = callback_url(request.data)
     if not uri:
-        return {'state': 'error', 'description': 'no valid callback given', 'context': 'whf'}, 500
+        return json.dumps({'state': 'error', 'description': 'no valid callback given', 'context': 'whf'}), 500
     stat, m = update_compose(variable)
     if stat:
-        return {'state': 'success', 'description': 'upgrade done', 'context': 'whf'}, 200
-    return {'state': 'failure', 'description': m, 'context': 'whf'}, 400
+        return json.dumps({'state': 'success', 'description': 'upgrade done', 'context': 'whf'}), 200
+    return json.dumps({'state': 'failure', 'description': m, 'context': 'whf'}), 400
 
 
 if __name__ == "__main__":
