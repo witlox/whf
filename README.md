@@ -65,6 +65,8 @@ hook-master-start = unix_signal:15 gracefully_kill_them_all
 chdir = /usr/share/whf
 module = main
 callable = app
+
+logto = /var/log/uwsgi.log
 ```
 
 ### systemd
@@ -88,4 +90,18 @@ systemctl daemon-reload
 systemctl start uwsgi
 systemctl enable uwsgi
 systemctl restart nginx
+```
+
+### logrotate
+/etc/logrotate.d/uwsgi
+```ini
+/var/log/uwsgi.log {
+        daily
+        missingok
+        rotate 12
+        compress
+        delaycompress
+        notifempty
+        create 0644 root root
+}
 ```
