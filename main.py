@@ -1,6 +1,7 @@
 import argparse
 from logging.config import dictConfig
 
+import requests
 from fabric import Connection
 from flask import Flask, json, request
 
@@ -65,6 +66,16 @@ def callback_url(payload):
         return None
 
 
+def post_back(uri, data):
+    r = requests.post(uri, data=data)
+    if not r.status_code:
+        app.logger.error("could not post {0} to {1} ({2}: {3})".format(data, uri, r.status_code, r.reason))
+        return "error on posting to endpoint", 500
+    else:
+        app.logger.debug("posted {0} to {1}".format(data, uri))
+        return None, 200
+
+
 @app.errorhandler(404)
 def not_found_error(error):
     return None, 404
@@ -74,11 +85,11 @@ def not_found_error(error):
 def hooks(variable):
     uri = callback_url(request.data)
     if not uri:
-        return json.dumps({'state': 'error', 'description': 'no valid callback given', 'context': 'whf'}), 500
+        return post_back(uri, {'state': 'error', 'description': 'no valid callback given', 'context': 'whf'})
     stat, m = update_compose(variable)
     if stat:
-        return json.dumps({'state': 'success', 'description': 'upgrade done', 'context': 'whf'}), 200
-    return json.dumps({'state': 'failure', 'description': m, 'context': 'whf'}), 400
+        return post_back(uri, {'state': 'success', 'description': 'upgrade done', 'context': 'whf'})
+    return post_back(uri, {'state': 'failure', 'description': m, 'context': 'whf'})
 
 
 if __name__ == "__main__":
