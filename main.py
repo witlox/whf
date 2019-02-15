@@ -70,15 +70,15 @@ def post_back(uri, data):
     r = requests.post(uri, data=data)
     if not r.status_code:
         app.logger.error("could not post {0} to {1} ({2}: {3})".format(data, uri, r.status_code, r.reason))
-        return "error on posting to endpoint", 500
+        return 'error on posting to endpoint', 500
     else:
         app.logger.debug("posted {0} to {1}".format(data, uri))
-        return None, 200
+        return 'success', 200
 
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return None, 404
+    return '', 404
 
 
 @app.route('/hooks/<variable>', methods=['GET', 'POST', 'PUT'])
