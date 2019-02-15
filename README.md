@@ -1,13 +1,10 @@
 # Web Hook Forwarder
 The idea is to run local commands on internal servers using SSH if you have external webhooks triggering it.
 The implementation currently runs the docker compose chain for updating existing images.
-This stupid simple setup assumes a test server hosting frontend and backed, acceptance frontend and backend.
+This stupid simple setup assumes a server is configured in your ssh_config and can be called from http://<server_url>/hooks/<server_to_call>.
 
 ## Configure
-Create a ssh config file in /etc/ssh/ssh_config and add the following entries: 
-1. Test server hosting both frontend and backend: `test`
-2. Acceptance server hosting frontend: `acc-fe`
-3. Acceptance server hosting backend: `acc-be`
+Create a ssh config file in /etc/ssh/ssh_config and add entries for the servers you want to be able to call. 
 Make sure the key used to connect to the servers is readable by the uWSGI uid (in this case: www-data)
 
 ```bash

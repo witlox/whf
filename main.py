@@ -1,7 +1,7 @@
 import argparse
 
 from fabric import Connection
-from flask import Flask
+from flask import Flask, json, request
 
 app = Flask(__name__)
 
@@ -29,41 +29,38 @@ def update_compose(server):
     return True, None
 
 
-@app.route("/")
-def root():
-    return '', 404
+def callback_url(payload):
+    if not payload:
+        app.logger.error("no payload for request")
+        return None
+    try:
+        data = json.loads(payload)
+        if not data:
+            app.logger.error("no payload for request")
+            return None
+        if not 'callback_url' in data:
+            app.logger.error("no callback url in data")
+            return None
+        return data['callback_url']
+    except:
+        app.logger.error("payload data not in JSON format")
+        return None
 
 
-@app.route("/backend/test/signal")
-def test_backend():
-    stat, m = update_compose('test')
+@app.errorhandler(404)
+def not_found_error(error):
+    return None, 404
+
+
+@app.route('hooks/<variable>', methods=['GET', 'POST', 'PUT'])
+def hooks(variable):
+    uri = callback_url(request.data)
+    if not uri:
+        return {'state': 'error', 'description': 'no valid callback given', 'context': 'whf'}, 500
+    stat, m = update_compose(variable)
     if stat:
-        return 'success', 200
-    return m, 500
-
-
-@app.route("/backend/acceptance/signal")
-def acceptance_backend():
-    stat, m = update_compose('acc-be')
-    if stat:
-        return 'success', 200
-    return m, 500
-
-
-@app.route("/frontend/test/signal")
-def test_frontend():
-    stat, m = update_compose('test')
-    if stat:
-        return 'success', 200
-    return m, 500
-
-
-@app.route("/frontend/acceptance/signal")
-def acceptance_frontend():
-    stat, m = update_compose('acc-fe')
-    if stat:
-        return 'success', 200
-    return m, 500
+        return {'state': 'success', 'description': 'upgrade done', 'context': 'whf'}, 200
+    return {'state': 'failure', 'description': m, 'context': 'whf'}, 400
 
 
 if __name__ == "__main__":
