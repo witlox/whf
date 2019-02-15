@@ -17,7 +17,7 @@ Host <hostname should match entries above>
 ## Install
 Clone this repository in `/usr/share/whf`, or modify the uwsgi.ini to reflect your location.
 ```bash
-apt install python-virtualenv python3-pip uwsgi-plugin-python3 supervisor nginx
+apt install python-virtualenv python3-pip uwsgi-plugin-python3 nginx
 ```
 
 ### Virtual environment
@@ -67,17 +67,25 @@ module = main
 callable = app
 ```
 
-### supervisord
-/etc/supervisor/conf.d/app.conf
-```ini
-[program:whf]
-command=/venv/whf/bin/uwsgi --ini /etc/uwsgi/uwsgi.ini
-priority=1
-stopsignal=QUIT
-stdout_logfile = /var/log/supervisor/whf-app.log
-stdout_logfile_backups = 5
-stderr_logfile = /var/log/supervisor/whf-error.log
-stderr_logfile_backups = 5
-```
+### systemd
+/etc/systemd/system/uwsgi.service
+```systemd
+[Unit]
+Description=uWSGI instance to serve whf
+After=network.target
 
-Restart supervisor and nginx, and you're good to go.
+[Service]
+WorkingDirectory=/usr/share/whf
+Environment="PATH=/venv/whf/bin"
+ExecStart=/venv/whf/bin/uwsgi --ini /etc/uwsgi/uwsgi.ini
+
+[Install]
+WantedBy=multi-user.target
+```
+Reload, start and enable the systemd service.
+```bash
+systemctl daemon-reload
+systemctl start uwsgi
+systemctl enable uwsgi
+systemctl restart nginx
+```

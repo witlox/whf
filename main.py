@@ -70,7 +70,7 @@ def not_found_error(error):
     return None, 404
 
 
-@app.route('hooks/<variable>', methods=['GET', 'POST', 'PUT'])
+@app.route('/hooks/<variable>', methods=['GET', 'POST', 'PUT'])
 def hooks(variable):
     uri = callback_url(request.data)
     if not uri:
